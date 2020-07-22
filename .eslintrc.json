@@ -1,0 +1,68 @@
+{
+  "extends": [
+    "prettier-standard/prettier-file",
+    "plugin:import/recommended",
+    "plugin:security/recommended"
+  ],
+  "plugins": [
+    "security",
+    "import"
+  ],
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true,
+    "jest": true
+  },
+  "globals": {
+    "scriptParameters": "writable",
+    "resolveScript": "readonly",
+    "rejectScript": "readonly"
+  },
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "settings": {},
+  "rules": {
+    "no-unused-vars": [
+      "error",
+      {
+        "varsIgnorePattern": "(^_+[0-9]*$)|([iI]gnored$)|(^ignored)",
+        "argsIgnorePattern": "(^_+[0-9]*$)|([iI]gnored$)|(^ignored)"
+      }
+    ],
+    "no-console": [
+      "error",
+      {
+        "allow": [
+          "warn",
+          "error",
+          "info",
+          "debug"
+        ]
+      }
+    ],
+    "security/detect-object-injection": "off",
+    "security/detect-non-literal-fs-filename": "off",
+    "security/detect-possible-timing-attacks": "off",
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "js": "never",
+        "jsx": "never"
+      }
+    ],
+    "import/no-unresolved": [
+      "error",
+      {
+        "commonjs": true
+      }
+    ]
+  }
+}
