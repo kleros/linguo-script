@@ -1,5 +1,4 @@
-const { Linguo, LinguoToken } = require('@kleros/contract-deployments/linguo');
-const any = require('promise.any');
+const Linguo = require('@kleros/linguo-contracts/artifacts/Linguo.json');
 const Web3 = require('web3');
 const { getTaskUrl, getTaskId } = require('./linguo');
 const provider = require('./provider');
@@ -25,19 +24,10 @@ async function getMetaEvidence() {
 
 async function getAdditionalData({ arbitrableContractAddress, disputeID }) {
   const linguoContract = new web3.eth.Contract(Linguo.abi, arbitrableContractAddress);
-  const linguoTokenContract = new web3.eth.Contract(LinguoToken.abi, arbitrableContractAddress);
 
-  const { taskID, requester, translator, challenger } = await any([
-    _tryGetDataFromContract(linguoContract, {
-      arbitrableContractAddress,
-      disputeID,
-    }),
-    _tryGetDataFromContract(linguoTokenContract, {
-      arbitrableContractAddress,
-      disputeID,
-    }),
-  ]).catch(() => {
-    throw new Error('Invalid dispute');
+  const { taskID, requester, translator, challenger } = await _tryGetDataFromContract(linguoContract, {
+    arbitrableContractAddress,
+    disputeID,
   });
 
   return {

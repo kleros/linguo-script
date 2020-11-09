@@ -22,10 +22,9 @@
   },
   "dependencies": {
     "@kleros/archon": "^0.10.2",
-    "@kleros/contract-deployments": "^0.3.2",
+    "@kleros/linguo-contracts": "~0.1.1",
     "core-js": "^3.0.0",
-    "promise.any": "^2.0.1",
-    "web3": "1.2.5"
+    "web3": "1.2.6"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
