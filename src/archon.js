@@ -1,6 +1,6 @@
 const Archon = require('@kleros/archon');
 const provider = require('./provider');
 
-const ipfsHostAddress = process.env.IPFS_HOST_ADDRESS || 'http://localhost:5001';
+const ipfsGateway = process.env.IPFS_GATEWAY_ADDRESS || 'https://ipfs.io';
 
-module.exports = new Archon(provider, ipfsHostAddress);
+module.exports = new Archon(provider, ipfsGateway);

@@ -13,7 +13,6 @@
   "repository": "https://github.com/kleros/linguo-script",
   "license": "MIT",
   "author": "Kleros",
-  "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack --mode production --progress",
@@ -21,10 +20,10 @@
     "lint:js": "eslint --ext .js,.jsx src/"
   },
   "dependencies": {
-    "@kleros/archon": "^0.10.2",
+    "@kleros/archon": "^2.0.1",
     "@kleros/linguo-contracts": "~0.1.1",
     "core-js": "^3.0.0",
-    "web3": "1.2.6"
+    "web3": "1.5.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",

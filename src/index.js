@@ -6,27 +6,32 @@ const promiseRetry = require('./promiseRetry');
 
 module.exports = getMetaEvidence;
 
-const web3 = new Web3(provider);
+const defaultWeb3 = new Web3(provider);
 
 async function getMetaEvidence() {
-  const { arbitrableContractAddress, disputeID } = scriptParameters;
+  const { arbitrableContractAddress, disputeID, chainID, jsonRpcUrl } = scriptParameters;
 
   if (!arbitrableContractAddress || !disputeID) {
     resolveScript({});
   }
 
+  let web3 = defaultWeb3;
+  if (chainID) {
+    const injectedProvider = provider.createNetworkProvider({ chainId: chainID, url: jsonRpcUrl });
+    web3 = new Web3(injectedProvider);
+  }
+
+  const contract = new web3.eth.Contract(Linguo.abi, arbitrableContractAddress);
+
   try {
-    resolveScript(await getAdditionalData({ arbitrableContractAddress, disputeID }));
+    resolveScript(await getAdditionalData(contract, { disputeID }));
   } catch (err) {
     rejectScript(err.message);
   }
 }
 
-async function getAdditionalData({ arbitrableContractAddress, disputeID }) {
-  const linguoContract = new web3.eth.Contract(Linguo.abi, arbitrableContractAddress);
-
-  const { taskID, requester, translator, challenger } = await _tryGetDataFromContract(linguoContract, {
-    arbitrableContractAddress,
+async function getAdditionalData(contract, { disputeID }) {
+  const { taskID, requester, translator, challenger } = await _tryGetDataFromContract(contract, {
     disputeID,
   });
 
@@ -37,12 +42,12 @@ async function getAdditionalData({ arbitrableContractAddress, disputeID }) {
       [challenger]: 'Challenger',
     },
     arbitrableInterfaceURI: getTaskUrl({
-      contractAddress: arbitrableContractAddress,
+      contractAddress: contract.options.address,
       id: taskID,
     }),
     arbitrableInterfaceMetadata: {
       arbitrableID: getTaskId({
-        contractAddress: arbitrableContractAddress,
+        contractAddress: contract.options.address,
         id: taskID,
       }),
     },
@@ -95,25 +100,23 @@ async function _tryGetDataFromContract(contract, { disputeID }) {
 }
 
 async function _getPastEvents(contract, eventName, { filter, fromBlock = 0, toBlock = 'latest' } = {}) {
-  return promiseRetry(
-    contract
-      .getPastEvents(eventName, {
-        fromBlock,
-        toBlock,
-        filter,
-      })
-      .then(events => {
-        if (events.some(({ event }) => event === undefined)) {
-          console.warn('Failed to get log values for event', { eventName, filter, events });
-          throw new Error('Failed to get log values for event');
-        }
-
-        return events;
-      }),
+  const events = await promiseRetry(
+    contract.getPastEvents(eventName, {
+      fromBlock,
+      toBlock,
+      filter,
+    }),
     {
       maxAttempts: 5,
       delay: count => 500 + count * 1000,
       shouldRetry: err => err.message === 'Failed to get log values for event',
     }
   );
+
+  if (events.some(({ event }) => event === undefined)) {
+    console.warn('Failed to get log values for event', { eventName, filter, events });
+    throw new Error('Failed to get log values for event');
+  }
+
+  return events;
 }
