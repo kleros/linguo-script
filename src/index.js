@@ -1,26 +1,18 @@
 const Linguo = require('@kleros/linguo-contracts/artifacts/Linguo.json');
 const Web3 = require('web3');
 const { getTaskUrl, getTaskId } = require('./linguo');
-const provider = require('./provider');
 const promiseRetry = require('./promiseRetry');
 
 module.exports = getMetaEvidence;
 
-const defaultWeb3 = new Web3(provider);
-
 async function getMetaEvidence() {
-  const { arbitrableContractAddress, disputeID, chainID, jsonRpcUrl } = scriptParameters;
+  const { disputeID, arbitrableContractAddress, arbitrableChainID, arbitrableJsonRpcUrl } = scriptParameters;
 
-  if (!arbitrableContractAddress || !disputeID) {
+  if (!arbitrableContractAddress || !arbitrableChainID || !arbitrableJsonRpcUrl || !disputeID) {
     resolveScript({});
   }
 
-  let web3 = defaultWeb3;
-  if (chainID) {
-    const injectedProvider = provider.createNetworkProvider({ chainId: chainID, url: jsonRpcUrl });
-    web3 = new Web3(injectedProvider);
-  }
-
+  const web3 = new Web3(arbitrableJsonRpcUrl);
   const contract = new web3.eth.Contract(Linguo.abi, arbitrableContractAddress);
 
   try {
